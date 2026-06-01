@@ -1,91 +1,91 @@
 using UnityEngine;
 
+/// <summary>
+/// Facade for pretty logging. Use the static methods to write colored, sized
+/// logs to the Unity console. This class is lightweight and contains only
+/// convenience overloads; the formatting logic lives in PrettyLogCore.
+/// </summary>
 public class PrettyLog : MonoBehaviour
 {
-    private static float defaultTagSize = 14f;
-    private static float defaultMessageSize = 12f;
-    private static readonly Color DefaultMessageColor = Color.white;
-    private static readonly Color ErrorColor = ColorUtility.TryParseHtmlString("#FE4A49", out Color color) ? color : Color.red;
-    private static readonly Color WarningColor = ColorUtility.TryParseHtmlString("#FED766", out Color color) ? color : Color.yellow;
+    private static readonly float DefaultTagSize = 12;
+    private static readonly float DefaultMessageSize = 12f;
+    private static readonly Color DefaultTagColor;
+    private static readonly Color DefaultMessageColor;
+    private static readonly Color ErrorColor;
+    private static readonly Color WarningColor;
 
-    #region CORE LOG
-
-    public static void Log(string tag, string message, Color colorTag)
+    static PrettyLog()
     {
-        Log(tag, message, colorTag, DefaultMessageColor);
+        DefaultTagColor = PrettyLogCore.TryParseHexOrDefault("#7DBA84", Color.green);
+        DefaultMessageColor = Color.white;
+        ErrorColor = PrettyLogCore.TryParseHexOrDefault("#FE4A49", Color.red);
+        WarningColor = PrettyLogCore.TryParseHexOrDefault("#FED766", Color.yellow);
     }
 
-    public static void Log(string tag, string message, string colorHexTag)
+    public static void Log(string tag, string message, Color colorTag = default)
     {
-        if (TryParse(colorHexTag, out Color colorTag))
-            Log(tag, message, colorTag, DefaultMessageColor);
+        if (colorTag == default)
+            colorTag = DefaultTagColor;
+
+        PrintFormatted(PrettyLogType.Log, tag, message, colorTag, DefaultMessageColor);
     }
 
-    public static void Log (string tag, string message, Color colorTag, Color colorMessage)
+    public static void Log(string tag, string message, string hexColorTag)
     {
-        print(Format(tag, message, colorTag, colorMessage));
+        var colorTag = PrettyLogCore.TryParseHexOrDefault(hexColorTag, DefaultTagColor);
+        PrintFormatted(PrettyLogType.Log, tag, message, colorTag, DefaultMessageColor);
     }
 
-    public static void Log (string tag, string message, string colorHexTag, string colorHexMessage)
+    public static void LogWarning(string tag, string message, Color colorTag = default)
     {
-        if (TryParse(colorHexTag, out Color colorTag) && TryParse(colorHexMessage, out Color colorMessage))
-            print(Format(tag, message, colorTag, colorMessage));
+        if (colorTag == default)
+            colorTag = DefaultTagColor;
+
+        PrintFormatted(PrettyLogType.Warning, tag, message, colorTag, WarningColor);
     }
 
-    #endregion
-
-    public static void LogWarning(string tag, string message, Color colorTag, Color colorMessage)
+    public static void LogWarning(string tag, string message, string hexColorTag)
     {
-        Debug.LogWarning(Format(tag, message, colorTag, colorMessage));
+        var colorTag = PrettyLogCore.TryParseHexOrDefault(hexColorTag, DefaultTagColor);
+        PrintFormatted(PrettyLogType.Warning, tag, message, colorTag, WarningColor);
     }
 
-    public static void LogWarning(string tag, string message, string colorHexTag, string colorHexMessage)
+    public static void LogError(string tag, string message, Color colorTag = default)
     {
-        if (TryParse(colorHexTag, out Color colorTag) && TryParse(colorHexMessage, out Color colorMessage))
+        if (colorTag == default)
+            colorTag = DefaultTagColor;
+
+        PrintFormatted(PrettyLogType.Error, tag, message, colorTag, ErrorColor);
+    }
+
+    public static void LogError(string tag, string message, string hexColorTag)
+    {
+        var colorTag = PrettyLogCore.TryParseHexOrDefault(hexColorTag, DefaultTagColor);
+        PrintFormatted(PrettyLogType.Error, tag, message, colorTag, ErrorColor);
+    }
+
+    private static void PrintFormatted(PrettyLogType type, string tag, string message, Color colorTag, Color colorMessage, float tagSize = -1, float messageSize = -1)
+    {
+        if (tagSize <= 0)
+            tagSize = DefaultTagSize;
+
+        if (messageSize <= 0)
+            messageSize = DefaultMessageSize;
+
+        var formatted = PrettyLogCore.Format(tag, message, colorTag, colorMessage, tagSize, messageSize);
+        
+        switch(type)
         {
-            Debug.LogWarning(Format(tag, message, colorTag, colorMessage));
+            case PrettyLogType.Log:
+                Debug.Log(formatted);
+                break;
+            case PrettyLogType.Warning:
+                Debug.LogWarning(formatted);
+                break;
+            case PrettyLogType.Error:
+                Debug.LogError(formatted);
+
+                break;
         }
     }
-
-    public static void LogError(string tag, string message, Color colorTag, Color colorMessage)
-    {
-        Debug.LogError(Format(tag, message, colorTag, colorMessage));
-    }
-
-    public static void LogError(string tag, string message, string colorHexTag, string colorHexMessage)
-    {
-        if (TryParse(colorHexTag, out Color colorTag) && TryParse(colorHexMessage, out Color colorMessage))
-        {
-            Debug.LogError(Format(tag, message, colorTag, colorMessage));
-        }
-    }
-
-    #region HELPERS
-    private static string Format(string tag, string message, Color colorTag, Color colorMessage)
-    {
-        string tagColored = GetColoredMessage(tag, colorTag);
-        string messageColored = GetColoredMessage(message, colorMessage);
-
-        //print($"<color=#{ColorUtility.ToHtmlStringRGB(color)}>[{tag}]</color>{debug_test}");
-
-
-        return $"[{tagColored}] {messageColored}";
-    }
-
-    private static string GetColoredMessage(string message, Color color)
-    {
-        return $"<color=#{ColorToHex(color)}>{message}</color>";
-    }
-
-    private static bool TryParse(string hex, out Color color)
-    {
-        return ColorUtility.TryParseHtmlString(hex, out color);
-    }
-
-    private static string ColorToHex(Color color)
-    {
-        return ColorUtility.ToHtmlStringRGB(color);
-    }
-    
-    #endregion
 }
