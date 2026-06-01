@@ -1,0 +1,11 @@
+{
+  "name": "com.acproject.prettylog.Runtime",
+  "rootNamespace": "com.acproject.prettylog",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true
+}

@@ -106,3 +106,12 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ss]ceneDependencyCache*
 
 .DS_Store
+Thumbs.db
+
+# Ignore Visual Studio/Rider solution files generated locally
+*.csproj
+*.sln
+*.userprefs
+
+# Ensure meta files are NEVER ignored
+!*.meta
