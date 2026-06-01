@@ -1,6 +1,6 @@
 {
     "name": "com.acproject.prettylog",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "displayName": "PrettyLog",
     "description": "A simple and pretty logging system for Unity.",
     "unity": "2020.3",

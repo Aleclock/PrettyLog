@@ -7,7 +7,12 @@ This project uses Semantic Versioning.
 
 ---
 
-## [0.1.0] - 2026-06-01
+## [0.3.0] - 2026-06-01
+- Refactor package structure.
+- Added channels and sub-channels.
+- Added PrettyQuickLog, PrettyColors, PrettyLogExtensions.
+
+## [0.2.0] - 2026-06-01
 - Now standard, warning and error logs works properly.
 
 ## [0.1.0] - 2026-06-01
