@@ -1,1 +1,3 @@
 # PrettyLog
+
+This Unity Package allows... 
