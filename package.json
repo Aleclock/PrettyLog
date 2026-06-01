@@ -15,5 +15,12 @@
         "colors",
         "debug"
     ],
-    "dependencies": {}
+    "dependencies": {},
+    "samples": [
+        {
+            "displayName": "Basic Usage",
+            "description": "Demonstrates the basic usage of PrettyLog",
+            "path": "Samples~/PrettyLogBasicUsage"
+        }
+    ]
 }
