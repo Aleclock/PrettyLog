@@ -7,6 +7,10 @@ This project uses Semantic Versioning.
 
 ---
 
+## [0.4.0] - 2026-06-02
+- Cleaned up.
+- Added README.
+
 ## [0.3.0] - 2026-06-01
 - Refactor package structure.
 - Added channels and sub-channels.

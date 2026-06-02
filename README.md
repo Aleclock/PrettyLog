@@ -10,67 +10,88 @@ Key features
 - Per-channel and per-subchannel muting
 - Convenience static facades for quick colored logs (`PrettyQuickLog`) and structured channel-based logs (`PrettyLog`)
 
-Install
+# Installing
 
-- OpenUPM registry:
+## Via Unity Package Manager and OpenUPM
 
-	```bash
-	openupm add com.acproject.prettylog
-	```
+### Terminal:
 
-- Or add via Git (Unity Package Manager) using the repository URL or local package path.
+```bash
+openupm add com.acproject.prettylog
+```
 
-Quick examples
+### Manual
 
-- Quick colored log (editor only):
+Open your Unity project settings
+- Add the OpenUPM package registry:
+    - Name: OpenUPM
+    - URL: https://package.openupm.com
+    - Scope(s): com.acproject.prettylog
+- Open the Unity Package Manager window
+- Change the Registry from Unity to My Registries
+- Add the PrettyLog package
 
-	```csharp
-	using UnityEngine;
-	PrettyQuickLog.Log("Hello world", Color.cyan, isBold: true);
-	PrettyQuickLog.LogWarning("Be careful", Color.yellow);
-	PrettyQuickLog.LogError("Oops", Color.red, isBold: true);
-	```
+## Via Unity Package Manager and Git url
 
-- Channel-based logging (recommended for organized projects):
+- Open your Unity Package Manager
+- Add package from git url: https://github.com/Aleclock/com.acproject.prettylog#upm
 
-	```csharp
-	// Register a channel (recommended at startup)
-	PrettyLog.RegisterChannel("Gameplay", Color.green);
+<br><br>
 
-	// Register a sub-channel with custom styling
-	PrettyLog.RegisterSubChannel("Gameplay", "Input", "#7DBA84", isBold: true, fontSize: 14);
+# How to use it
 
-	// Write logs
-	PrettyLog.Log("Gameplay", "Player moved");
-	PrettyLog.Log("Gameplay", "Input", "Button pressed");
-	PrettyLog.LogWarning("Gameplay", "Physics", "Suspicious velocity");
-	PrettyLog.LogError("Gameplay", "Networking", "Lost connection");
-	```
+## Quick colored log
 
-Muting channels and sub-channels
+```csharp
+PrettyQuickLog.Log("Hello world", Color.cyan, isBold: true);
+PrettyQuickLog.LogWarning("Be careful", Color.yellow);
+PrettyQuickLog.LogError("Oops", Color.red, isBold: true);
+```
+
+## Channel-based logging (recommended for organized projects):
+
+```csharp
+// Register a channel (recommended at startup)
+PrettyLog.RegisterChannel("Gameplay", Color.green);
+
+// Register a sub-channel with custom styling
+PrettyLog.RegisterSubChannel("Gameplay", "Input", "#7DBA84", isBold: true, fontSize: 14);
+PrettyLog.RegisterSubChannel("Gameplay", "Networking", "#795dd6");
+
+// Log channel-level
+PrettyLog.Log("Gameplay", "Player moved");
+
+// Log sub-channel-level
+PrettyLog.Log("Gameplay", "Input", "Button pressed");
+PrettyLog.LogWarning("Gameplay", "Networking", "Suspicious velocity");
+PrettyLog.LogError("Gameplay", "Networking", "Lost connection");
+```
+
+## Muting channels and sub-channels
 
 ```csharp
 PrettyLog.SetChannelMute("Gameplay", true);
 PrettyLog.SetSubChannelMute("Gameplay", "Input", true);
 ```
 
-Color helpers
+<br><br>
 
-```csharp
-// Try parse hex -> Color (falls back to white on invalid input)
-Color c = PrettyLog.TryParseHexOrDefault("#7DBA84", Color.white);
-```
+# Contributing
 
-Contributing
+Contributions, issues and suggestions are welcome, please open a PR or an issue.
 
-Contributions, issues and suggestions are welcome — please open a PR or an issue.
-
-License
+# License
 
 This project is distributed under the terms of the included `LICENSE` file.
 
-Changelog
+# Changelog
 
 See `CHANGELOG.md` for details.
+
+<br>
+
+---
+
+<br>
 
 This README was generated 
