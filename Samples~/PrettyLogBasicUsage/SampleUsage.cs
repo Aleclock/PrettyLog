@@ -6,19 +6,29 @@ using UnityEngine;
 /// </summary>
 public class PrettyLogSampleUsage : MonoBehaviour
 {
+    private const string SCRIPT_CHANNEL = "Gameplay";
+    private const string SCRIPT_CHANNEL_COLOR = "#5af9e9";
+
     void Start()
     {
-        Console.log("This is a regular log message without formatting.");
-        PrettyLog.Log("PrettyLogSample", "Basic log using default colors");
+        // Quick logging with default styling
+        PrettyQuickLog.Log("Hello world", Color.cyan, isBold: true);
+        PrettyQuickLog.LogWarning("Be careful", Color.yellow);
+        PrettyQuickLog.LogError("Oops", Color.red, isBold: true);
 
-        // Hex colors
-        PrettyLog.Log("PrettyLogSample", "Hex colors", "#7DBA84", "#FFFFFF");
+        // Register a channel (recommended at startup)
+        PrettyLog.RegisterChannel(SCRIPT_CHANNEL, SCRIPT_CHANNEL_COLOR);
 
-        // Unity Color + explicit sizes
-        PrettyLog.Log("UI", "Button clicked", Color.cyan, Color.white, 18f, 14f);
+        // Register a sub-channel with custom styling
+        PrettyLog.RegisterSubChannel(SCRIPT_CHANNEL, "Input", "#7DBA84", isBold: true, fontSize: 14);
+        PrettyLog.RegisterSubChannel(SCRIPT_CHANNEL, "Networking", "#795dd6");
 
-        // Warnings and errors (uses PrettyLog.LogWarning/LogError)
-        PrettyLog.LogWarning("PrettyLogSample", "This is a warning", "#FED766", "#000000");
-        PrettyLog.LogError("PrettyLogSample", "This is an error", "#FE4A49", "#FFFFFF");
+        // Log channel-level
+        PrettyLog.Log(SCRIPT_CHANNEL, "Player moved");
+
+        // Log sub-channel-level
+        PrettyLog.Log(SCRIPT_CHANNEL, "Input", "Button pressed");
+        PrettyLog.LogWarning(SCRIPT_CHANNEL, "Networking", "Suspicious velocity");
+        PrettyLog.LogError(SCRIPT_CHANNEL, "Networking", "Lost connection");
     }
 }
