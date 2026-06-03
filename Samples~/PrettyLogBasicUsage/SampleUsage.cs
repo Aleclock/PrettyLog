@@ -1,4 +1,5 @@
 using UnityEngine;
+using PrettyLogSystem;
 
 /// <summary>
 /// Small example component showing how to use `PrettyLog` from a scene.
@@ -11,6 +12,8 @@ public class PrettyLogSampleUsage : MonoBehaviour
 
     void Start()
     {
+        Debug.Log("This is a regular log message, without any styling.");
+        
         // Quick logging with default styling
         PrettyQuickLog.Log("Hello world", Color.cyan, isBold: true);
         PrettyQuickLog.LogWarning("Be careful", Color.yellow);
@@ -30,5 +33,8 @@ public class PrettyLogSampleUsage : MonoBehaviour
         PrettyLog.Log(SCRIPT_CHANNEL, "Input", "Button pressed");
         PrettyLog.LogWarning(SCRIPT_CHANNEL, "Networking", "Suspicious velocity");
         PrettyLog.LogError(SCRIPT_CHANNEL, "Networking", "Lost connection");
+
+        // Personalized log with custom styling
+        PrettyLog.Log(SCRIPT_CHANNEL, $"Player health: {"75".Bold().Color("#ff00ff")}");
     }
 }

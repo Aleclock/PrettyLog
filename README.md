@@ -67,6 +67,14 @@ PrettyLog.LogWarning("Gameplay", "Networking", "Suspicious velocity");
 PrettyLog.LogError("Gameplay", "Networking", "Lost connection");
 ```
 
+## Personalized logging with custom styling
+
+```csharp
+PrettyLog.Log(SCRIPT_CHANNEL, $"Player health: {"75".Bold().Color("#ff00ff")}");
+```
+
+## Resulting Console
+
 ![Screenshot](img~/screenshot.png)
 
 ## Muting channels and sub-channels
@@ -75,7 +83,6 @@ PrettyLog.LogError("Gameplay", "Networking", "Lost connection");
 PrettyLog.SetChannelMute("Gameplay", true);
 PrettyLog.SetSubChannelMute("Gameplay", "Input", true);
 ```
-
 
 # Contributing
 
