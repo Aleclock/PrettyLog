@@ -7,6 +7,9 @@ This project uses Semantic Versioning.
 
 ---
 
+## [0.5.0] - 2026-06-03
+- Added screenshots in README.
+
 ## [0.4.0] - 2026-06-02
 - Cleaned up.
 - Added README.
