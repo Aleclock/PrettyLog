@@ -7,6 +7,11 @@ This project uses Semantic Versioning.
 
 ---
 
+## [0.6.0] - 2026-07-23
+- Added log verbosity filtering (similar to ffmpeg's loglevel).
+- Added channel-level and sub-channel-level severity thresholds.
+- Added runtime configuration APIs: `SetChannelVerbosity` and `SetSubChannelVerbosity`.
+
 ## [0.5.1] - 2026-06-03
 - Added logging with custom styling.
 

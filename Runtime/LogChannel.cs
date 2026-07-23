@@ -27,6 +27,7 @@ public class LogChannel
 
     public bool IsMuted;
     public bool PrintTimestamp;
+    public LogVerbosity Verbosity = LogVerbosity.Debug;
     public string CachedTag { get; private set; }
     public Dictionary<string, LogSubChannel> SubChannels = new Dictionary<string, LogSubChannel>();
 
@@ -67,15 +68,17 @@ public struct LogSubChannel
     public bool IsBold;
     public int FontSize;
     public bool IsMuted;
+    public LogVerbosity? Verbosity;
     public string CachedTag { get; private set; }
 
-    public LogSubChannel(string name, Color? customColor = null, bool isBold = false, int fontSize = 12)
+    public LogSubChannel(string name, Color? customColor = null, bool isBold = false, int fontSize = 12, LogVerbosity? verbosity = null)
     {
         Name = name;
         CustomColor = customColor;
         IsBold = isBold;
         FontSize = fontSize;
         IsMuted = false;
+        Verbosity = verbosity;
         CachedTag = string.Empty;
     }
 
@@ -100,4 +103,14 @@ public enum LogFontStyle
     Bold,
     Italic,
     BoldItalic
+}
+
+public enum LogVerbosity
+{
+    Silent = 0,
+    Error = 1,
+    Warning = 2,
+    Info = 3,
+    Verbose = 4,
+    Debug = 5
 }

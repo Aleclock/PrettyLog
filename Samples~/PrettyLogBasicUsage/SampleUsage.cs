@@ -36,5 +36,22 @@ public class PrettyLogSampleUsage : MonoBehaviour
 
         // Personalized log with custom styling
         PrettyLog.Log(SCRIPT_CHANNEL, $"Player health: {"75".Bold().Color("#ff00ff")}");
+
+        // --- VERBOSITY DEMO ---
+        // Register a channel with a Warning limit (Info, Verbose, and Debug will be ignored)
+        PrettyLog.RegisterChannel("Physics", "#FFA500", isBold: true, LogVerbosity.Warning);
+
+        // This will be logged (Error <= Warning threshold)
+        PrettyLog.LogError("Physics", "Gravity failure!");
+        // This will be ignored (Info > Warning threshold)
+        PrettyLog.Log("Physics", "Colliders initialised.");
+
+        // Register a sub-channel with a Verbose limit override (independent of main channel's Warning limit)
+        PrettyLog.RegisterSubChannel("Physics", "Collisions", "#FFA500", isBold: false, fontSize: 12, LogVerbosity.Verbose);
+
+        // This will be logged (Verbose <= sub-channel's Verbose threshold)
+        PrettyLog.Log("Physics", "Collisions", "A collision occurred.", LogVerbosity.Verbose);
+        // This will be ignored (Debug > sub-channel's Verbose threshold)
+        PrettyLog.Log("Physics", "Collisions", "Deep contact solver pass.", LogVerbosity.Debug);
     }
 }

@@ -20,34 +20,37 @@ namespace PrettyLogSystem
 
         /// <summary> Registers a main logging channel. </summary>
         [Conditional("UNITY_EDITOR")]
-        public static void RegisterChannel(string channelName, Color mainColor, bool isBold = true)
+        public static void RegisterChannel(string channelName, Color mainColor, bool isBold = true, LogVerbosity verbosity = LogVerbosity.Debug)
         {
             lock (_lock)
             {
                 if (!_channels.TryGetValue(channelName, out var channel))
                 {
-                    _channels[channelName] = new LogChannel(channelName, mainColor, isBold);
+                    channel = new LogChannel(channelName, mainColor, isBold);
+                    channel.Verbosity = verbosity;
+                    _channels[channelName] = channel;
                 }
                 else
                 {
                     channel.MainColor = mainColor;
                     channel.FontStyle = isBold ? LogFontStyle.Bold : LogFontStyle.Normal;
+                    channel.Verbosity = verbosity;
                 }
             }
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void RegisterChannel(string channelName, string hexColor, bool isBold = true)
+        public static void RegisterChannel(string channelName, string hexColor, bool isBold = true, LogVerbosity verbosity = LogVerbosity.Debug)
         {
             var color = TryParseHexOrDefault(hexColor, Color.white);
-            RegisterChannel(channelName, color, isBold);
+            RegisterChannel(channelName, color, isBold, verbosity);
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void RegisterSubChannel(string channelName, string subChannelName, Color? customColor = null, bool isBold = false, int fontSize = 12)
+        public static void RegisterSubChannel(string channelName, string subChannelName, Color? customColor = null, bool isBold = false, int fontSize = 12, LogVerbosity? verbosity = null)
         {
             LogChannel channel = GetOrCreateChannel(channelName);
-            var subChannel = new LogSubChannel(subChannelName, customColor, isBold, fontSize);
+            var subChannel = new LogSubChannel(subChannelName, customColor, isBold, fontSize, verbosity);
             subChannel.CacheHtmlTags(channel.MainColor);
 
             lock (_lock)
@@ -57,14 +60,14 @@ namespace PrettyLogSystem
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void RegisterSubChannel(string channelName, string subChannelName, string hexColor = null, bool isBold = false, int fontSize = 12)
+        public static void RegisterSubChannel(string channelName, string subChannelName, string hexColor = null, bool isBold = false, int fontSize = 12, LogVerbosity? verbosity = null)
         {
             Color? color = null;
             if (hexColor != null && TryParseColor(hexColor, out var parsedColor))
             {
                 color = parsedColor;
             }
-            RegisterSubChannel(channelName, subChannelName, color, isBold, fontSize);
+            RegisterSubChannel(channelName, subChannelName, color, isBold, fontSize, verbosity);
         }
 
         #endregion
@@ -96,53 +99,84 @@ namespace PrettyLogSystem
 
         #endregion
 
+        #region VERBOSITY
+
+        [Conditional("UNITY_EDITOR")]
+        public static void SetChannelVerbosity(string channelName, LogVerbosity verbosity)
+        {
+            lock (_lock)
+            {
+                var channel = GetOrCreateChannel(channelName);
+                channel.Verbosity = verbosity;
+            }
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        public static void SetSubChannelVerbosity(string channelName, string subChannelName, LogVerbosity? verbosity)
+        {
+            lock (_lock)
+            {
+                var channel = GetOrCreateChannel(channelName);
+                if (channel.SubChannels.TryGetValue(subChannelName, out LogSubChannel subChannel))
+                {
+                    subChannel.Verbosity = verbosity;
+                    channel.SubChannels[subChannelName] = subChannel;
+                }
+                else
+                {
+                    subChannel = new LogSubChannel(subChannelName, null, verbosity: verbosity);
+                    subChannel.CacheHtmlTags(channel.MainColor);
+                    channel.SubChannels[subChannelName] = subChannel;
+                }
+            }
+        }
+
+        #endregion
+
         #region LOGGING
 
         [Conditional("UNITY_EDITOR")]
-        public static void Log(string channelName, string subChannelName, string message)
+        public static void Log(string channelName, string subChannelName, string message, LogVerbosity verbosity = LogVerbosity.Info)
         {
-            bool isMuted = IsSubChannelMuted(channelName, subChannelName, out LogChannel channel, out LogSubChannel subChannel);
-            if (isMuted) return;
+            if (IsSubChannelFiltered(channelName, subChannelName, verbosity, out LogChannel channel, out LogSubChannel subChannel)) return;
 
             Debug.Log(BuildHTMLString(channel, subChannel, true, message));
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void LogWarning(string channelName, string subChannelName, string message)
+        public static void LogWarning(string channelName, string subChannelName, string message, LogVerbosity verbosity = LogVerbosity.Warning)
         {
-            bool isMuted = IsSubChannelMuted(channelName, subChannelName, out LogChannel channel, out LogSubChannel subChannel);
-            if (isMuted) return;
+            if (IsSubChannelFiltered(channelName, subChannelName, verbosity, out LogChannel channel, out LogSubChannel subChannel)) return;
 
             Debug.LogWarning(BuildHTMLString(channel, subChannel, true, message));
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void LogError(string channelName, string subChannelName, string message)
+        public static void LogError(string channelName, string subChannelName, string message, LogVerbosity verbosity = LogVerbosity.Error)
         {
-            bool isMuted = IsSubChannelMuted(channelName, subChannelName, out LogChannel channel, out LogSubChannel subChannel);
-            if (isMuted) return;
+            if (IsSubChannelFiltered(channelName, subChannelName, verbosity, out LogChannel channel, out LogSubChannel subChannel)) return;
 
             Debug.LogError(BuildHTMLString(channel, subChannel, true, message));
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void Log(string channelName, string message)
+        public static void Log(string channelName, string message, LogVerbosity verbosity = LogVerbosity.Info)
         {
-            if (IsChannelMuted(channelName, out LogChannel channel)) return;
+            if (IsChannelFiltered(channelName, verbosity, out LogChannel channel)) return;
             Debug.Log(BuildHTMLString(channel, default, false, message));
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void LogWarning(string channelName, string message)
+        public static void LogWarning(string channelName, string message, LogVerbosity verbosity = LogVerbosity.Warning)
         {
-            if (IsChannelMuted(channelName, out LogChannel channel)) return;
+            if (IsChannelFiltered(channelName, verbosity, out LogChannel channel)) return;
             Debug.LogWarning(BuildHTMLString(channel, default, false, message));
         }
 
         [Conditional("UNITY_EDITOR")]
-        public static void LogError(string channelName, string message)
+        public static void LogError(string channelName, string message, LogVerbosity verbosity = LogVerbosity.Error)
         {
-            if (IsChannelMuted(channelName, out LogChannel channel)) return;
+            if (IsChannelFiltered(channelName, verbosity, out LogChannel channel)) return;
             Debug.LogError(BuildHTMLString(channel, default, false, message));
         }
 
@@ -169,7 +203,13 @@ namespace PrettyLogSystem
             return channel.IsMuted;
         }
 
-        private static bool IsSubChannelMuted(string channelName, string subChannelName, out LogChannel channel, out LogSubChannel subChannel)
+        private static bool IsChannelFiltered(string channelName, LogVerbosity verbosity, out LogChannel channel)
+        {
+            if (IsChannelMuted(channelName, out channel)) return true;
+            return verbosity > channel.Verbosity;
+        }
+
+        private static bool IsSubChannelFiltered(string channelName, string subChannelName, LogVerbosity verbosity, out LogChannel channel, out LogSubChannel subChannel)
         {
             if (IsChannelMuted(channelName, out channel))
             {
@@ -181,13 +221,16 @@ namespace PrettyLogSystem
             {
                 if (channel.SubChannels.TryGetValue(subChannelName, out subChannel))
                 {
-                    return subChannel.IsMuted;
+                    if (subChannel.IsMuted) return true;
+                    LogVerbosity limit = subChannel.Verbosity ?? channel.Verbosity;
+                    return verbosity > limit;
                 }
 
                 subChannel = new LogSubChannel(subChannelName, null);
                 subChannel.CacheHtmlTags(channel.MainColor);
                 channel.SubChannels[subChannelName] = subChannel;
-                return false;
+                
+                return verbosity > channel.Verbosity;
             }
         }   
 
