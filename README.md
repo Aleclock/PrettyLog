@@ -8,6 +8,7 @@ Key features
 - Colored channel tags and optional sub-channel tags
 - Channel and sub-channel registration APIs
 - Per-channel and per-subchannel muting
+- Log verbosity filtering (ffmpeg-style log level filtering) for channels and sub-channels
 - Convenience static facades for quick colored logs (`PrettyQuickLog`) and structured channel-based logs (`PrettyLog`)
 
 # Installing
@@ -82,6 +83,47 @@ PrettyLog.Log(SCRIPT_CHANNEL, $"Player health: {"75".Bold().Color("#ff00ff")}");
 ```csharp
 PrettyLog.SetChannelMute("Gameplay", true);
 PrettyLog.SetSubChannelMute("Gameplay", "Input", true);
+```
+
+## Log Verbosity (Log levels)
+
+You can specify a verbosity limit for channels and sub-channels. When logging a message, you can define its verbosity. If a log's verbosity is greater than the target channel/sub-channel's threshold, the log is ignored.
+
+### Verbosity levels
+
+`LogVerbosity` defines the following levels:
+- `Silent` (0) - Logs nothing
+- `Error` (1) - Logs only errors
+- `Warning` (2) - Logs warnings and errors
+- `Info` (3) - Logs info, warnings, and errors (Default for standard logs)
+- `Verbose` (4) - Logs detailed logs, info, warnings, and errors
+- `Debug` (5) - Logs everything (Default threshold for newly registered channels)
+
+### Examples
+
+```csharp
+// Register a channel with Warning limit (Info/Verbose/Debug will be ignored)
+PrettyLog.RegisterChannel("Physics", Color.red, isBold: true, LogVerbosity.Warning);
+
+// This will log (Error <= Warning)
+PrettyLog.LogError("Physics", "Gravity failure!");
+
+// This will be ignored (Info > Warning)
+PrettyLog.Log("Physics", "System initialized.");
+
+// Sub-channels inherit the main channel's limit unless overridden
+PrettyLog.RegisterSubChannel("Physics", "Collisions", customColor: null, isBold: false, fontSize: 12, LogVerbosity.Verbose);
+
+// This will log since the sub-channel explicitly overrides the limit to Verbose
+PrettyLog.Log("Physics", "Collisions", "Collision detected.", LogVerbosity.Verbose);
+```
+
+### Changing verbosity at runtime
+
+You can change verbosity thresholds dynamically at runtime:
+```csharp
+PrettyLog.SetChannelVerbosity("Gameplay", LogVerbosity.Verbose);
+PrettyLog.SetSubChannelVerbosity("Gameplay", "Input", LogVerbosity.Debug);
 ```
 
 # Contributing
